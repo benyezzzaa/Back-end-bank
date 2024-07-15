@@ -26,7 +26,7 @@ const createProspect = (req, res) => {
                 res.json({ success: true, id: results.insertId });
                 
                 // Envoyer un email après la création du prospect
-                sendEmail(email, 'pending', 'Your application is under review.');
+                sendEmail(email, 'pending', 'thanks for sumbitting Your application is under review.');
             });
         }
     });
