@@ -12,7 +12,7 @@ const getAllClients = (req, res) => {
 
 const checkClientExists = (req, res) => {
     const { email } = req.body;
-    console.log('Received request to check client with email:', email);  // Journalisation
+    console.log('Received request to check the client with email:', email);  // Journalisation
     Client.findByEmail(email, (err, results) => {
         if (err) {
             res.status(500).send(err);
