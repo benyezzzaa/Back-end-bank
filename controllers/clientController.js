@@ -20,7 +20,7 @@ const checkClientExists = (req, res) => {
         }
 
         if (results.length > 0) {
-            res.json({ exists: true, message: 'Client exists in the bank.' });
+            res.json({ exists: true, message: 'Client already exists in the bank.' });
         } else {
             res.json({ exists: false, message: 'Client does not exist in the bank.' });
         }
