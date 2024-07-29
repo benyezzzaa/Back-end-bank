@@ -1,9 +1,76 @@
 const Prospect = require('../models/prospect');
 const Client = require('../models/client');
 const nodemailer = require('nodemailer');
+const db = require('../db');
+
+const getAll = (req, res) => {
+
+    
+    console.log("prospect get all");
+
+    let prospectArray =  [];
+
+    //res.send("hello")
+    Prospect.getAll((err, results) => {
+    
+        if (err) {
+            res.status(500).send(err);
+            return;
+        } 
+
+        var prospects = ["04567834" , "06346719"]
+
+        for(i=0 ; i < prospects.length ; i++){
+
+            Client.findByCin(prospects[i],(err,result)=>{
+                if(!err){
+                prospectArray.push(result[0])  
+                console.log(prospectArray); 
+            }
+
+            })
+        }
+
+        res.send(prospectArray)
+        
+    });
+};
+
+
+const getOne = (req, res) => {
+    cin = req.params['cin'];
+    res.json(getClientInfo(cin));
+}
+
+const getClientInfo = (req,res)=>{
+
+    cin = req.params['cin'];
+
+    Client.findByCin(cin , (err,response)=>{
+        console.log(response);
+        res.json(response)    
+    })
+}
+
+
+const getAllClientDetails = (clientsCinList)=>{
+
+    clientsData = [];
+
+    clientsCinList.forEach((clientCin)=>{
+
+        Client.findByCin(clientCin,(err,response)=>{
+            clientsData.push(response);
+            })
+            })
+            console.log(clientsData);
+            return clientsData;
+            }
+
+
 
 const createProspect = (req, res) => {
-    const { firstname, lastname, email, adress } = req.body;
+    const { firstname, lastname, email, adress, cin } = req.body;
     
 
     // Vérification si le client existe déjà dans la banque
@@ -18,7 +85,7 @@ const createProspect = (req, res) => {
             res.status(400).json({ success: false, message: 'Client already exists in the bank.' });
         } else {
             // Le client n'existe pas, on peut l'ajouter comme prospect
-            Prospect.create({ firstname, lastname, email, adress }, (err, results) => {
+            Prospect.create({ cin }, (err, results) => {
                 if (err) {
                     res.status(500).send(err);
                     return;
@@ -31,6 +98,8 @@ const createProspect = (req, res) => {
         }
     });
 };
+
+
 
 const adminCheck = (req, res) => {
     const { id, status, reason } = req.body;
@@ -93,8 +162,20 @@ const sendEmail = (to, status, reason) => {
         }
     });
 };
+const getProspectsWithCin = (req, res) => {
+    db.query('SELECT cin FROM prospects', (err, results) => {
+        if (err) {
+            res.status(500).send(err);
+        } else {
+            res.json(results);
+        }
+    });
+};
 
 module.exports = {
     createProspect,
-    adminCheck
+    adminCheck,getProspectsWithCin,
+    getAll,
+    getClientInfo,
+    getOne
 };

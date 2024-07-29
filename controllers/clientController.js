@@ -1,4 +1,5 @@
 const Client = require('../models/client');
+const Prospect = require('../models/prospect');
 
 const getAllClients = (req, res) => {
     Client.findAll((err, results) => {
@@ -11,16 +12,19 @@ const getAllClients = (req, res) => {
 };
 
 const checkClientExists = (req, res) => {
-    const { email } = req.body;
-    console.log('Received request to check the client with email:', email);  // Journalisation
-    Client.findByEmail(email, (err, results) => {
+    const { cin } = req.body;
+    console.log('Received request to check the client with cin:', cin);  // Journalisation
+    Client.findByCin(cin, (err, results) => {
         if (err) {
             res.status(500).send(err);
             return;
         }
 
         if (results.length > 0) {
-            res.json({ exists: true, message: 'Client already exists in the bank.' });
+            console.log("creating prospect");
+            Prospect.create(cin,null)    
+
+            res.json({ exists: true, message: 'Waiting for admin approval' });
         } else {
             res.json({ exists: false, message: 'Client does not exist in the bank.' });
         }

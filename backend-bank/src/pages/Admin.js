@@ -1,59 +1,60 @@
-// src/pages/Admin.js
-import React, { useState, useEffect } from 'react';
-
-// src/pages/Admin.js
-import axios from '../axiosConfig';
-import CheckClientForm from './CheckClientForm';
-
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 const Admin = () => {
-    const [prospects, setProspects] = useState([]);
-    const [clientInfos, setClientInfos] = useState([]);
+  return (
+    <div className="min-h-screen flex flex-col bg-gray-800">
+      <header className="w-full bg-gray-900 p-4 flex justify-between items-center">
+        <h1 className="text-3xl text-white font-bold">Client Dashboard</h1>
+        <nav className="flex space-x-4">
+          <Link to="/check-client" className="text-white hover:text-yellow-500">
+            Check Client
+          </Link>
+          <Link to="/check-prospect" className="text-white hover:text-yellow-500">
+            Check Prospect
+          </Link>
+          <Link to="/account-management" className="text-white hover:text-yellow-500">
+            Account Management
+          </Link>
+          <Link to="/transaction-management" className="text-white hover:text-yellow-500">
+            Transaction Management
+          </Link>
+        </nav>
+      </header>
 
-    useEffect(() => {
-        // Récupérer les prospects
-        axios.get('/:cin')
-            .then(response => {
-                setProspects(response.data);
-            })
-            .catch(error => {
-                console.error("Erreur lors de la récupération des prospects :", error);
-            });
-    }, []);
-
-    const fetchClientInfos = (cinList) => {
-        axios.post('/prospect-client-info', { prospectIds: cinList })
-            .then(response => {
-                setClientInfos(response.data);
-            })
-            .catch(error => {
-                console.error("Erreur lors de la récupération des informations des clients :", error);
-            });
-    };
-
-    return (
-        <div>
-            <h1>Interface Admin</h1>
-            <h2>Prospects</h2>
-            < CheckClientForm/>
-            <ul>
-                {prospects.map(prospect => (
-                    <li key={prospect.cin}>{prospect.cin}</li>
-                ))}
-            </ul>
-            <button onClick={() => fetchClientInfos(prospects.map(p => p.cin))}>
-                Récupérer les informations des clients
-            </button>
-            <h2>Informations des Clients</h2>
-            <ul>
-                {clientInfos.map(client => (
-                    <li key={client.cin}>
-                        {client.firstname} {client.lastname} - {client.email} - {client.address}
-                    </li>
-                ))}
-            </ul>
+      <main className="flex-1 flex flex-col lg:flex-row items-center justify-center lg:space-x-8 p-8">
+        <div className="text-center lg:text-left lg:w-1/2">
+          <h2 className="text-4xl text-white font-bold mb-4">
+            Fast And Simple Digital Payment Solution
+          </h2>
+          <p className="text-gray-300 mb-6">
+            Manage your financial transactions easily with our simple-to-use system. Secure and efficient digital payment solutions.
+          </p>
+          <div className="flex space-x-4">
+            <Link
+              to="/get-it-now"
+              className="bg-yellow-500 text-black font-bold py-3 px-6 rounded-full hover:bg-yellow-600"
+            >
+              Get It Now
+            </Link>
+            <Link
+              to="/download-app"
+              className="bg-transparent border border-yellow-500 text-yellow-500 font-bold py-3 px-6 rounded-full hover:bg-yellow-500 hover:text-black"
+            >
+              Download App
+            </Link>
+          </div>
         </div>
-    );
+        <div className="mt-8 lg:mt-0 lg:w-1/2 flex justify-center">
+          <img
+            src="https://i.pinimg.com/564x/64/af/8d/64af8df64640f1bb6d51761aa46d8045.jpg"
+            alt="Payment Solution"
+            className="w-full max-w-md h-auto object-contain"
+          />
+        </div>
+      </main>
+    </div>
+  );
 };
 
 export default Admin;
