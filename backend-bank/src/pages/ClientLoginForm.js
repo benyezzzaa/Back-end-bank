@@ -1,3 +1,4 @@
+// ClientLoginForm.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -22,8 +23,8 @@ const Modal = ({ isOpen, onClose, message }) => {
   );
 };
 
-const AdminLoginForm = () => {
-  const [username, setUsername] = useState('');
+const ClientLoginForm = () => {
+  const [cin, setCin] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,18 +33,18 @@ const AdminLoginForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/admin/login', { username, password });
+      const response = await axios.post('/clients/login', { cin, password });
       if (response.data.success) {
-        // Stocker le token dans le localStorage
+        // Store the token in localStorage
         localStorage.setItem('token', response.data.token);
-        navigate('/admin-dashboard'); // Rediriger vers la page AdminDashboard
+        navigate('/client'); // Redirect to the Client Dashboard page
       } else {
         setError(response.data.message);
         setIsModalOpen(true);
       }
     } catch (error) {
-      console.error('Erreur lors de la connexion :', error);
-      setError(error.message);
+      console.error('Error during login:', error);
+      setError(error.response?.data?.message || 'Error during login.');
       setIsModalOpen(true);
     }
   };
@@ -52,21 +53,21 @@ const AdminLoginForm = () => {
     <div className="flex min-h-screen">
       <div className="w-full md:w-1/2 flex items-center justify-center bg-gray-100 p-8 relative">
         <div className="absolute top-4 left-4 flex items-center space-x-2">
-          <img src="https://i.pinimg.com/564x/4c/ca/22/4cca22b0d53cacd07a9bc50d1af6c13f.jpg" alt="Logo" className="w-8 h-8" /> {/* Remplace cette ligne par l'URL de ton logo */}
+          <img src="https://i.pinimg.com/564x/4c/ca/22/4cca22b0d53cacd07a9bc50d1af6c13f.jpg" alt="Logo" className="w-8 h-8" />
           <span className="text-xl font-bold">My Bank</span>
         </div>
         <div className="w-full max-w-md p-8 border border-black rounded-lg bg-transparent relative">
           <h2 className="text-3xl font-bold text-center bg-gray-100 px-4 absolute top-0 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-            Admin Login
+            Client Login
           </h2>
           <form onSubmit={handleSubmit} className="space-y-4 mt-6">
             <div className="mb-4">
               <input
-                id="username"
+                id="cin"
                 type="text"
-                placeholder="Username or Email"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                placeholder="CIN"
+                value={cin}
+                onChange={(e) => setCin(e.target.value)}
                 required
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
@@ -90,19 +91,17 @@ const AdminLoginForm = () => {
             </button>
           </form>
           <div className="mt-4 text-center">
-            <a href="#" className="text-gray-400 hover:underline">Forgot Username or Password?</a>
+            
           </div>
           <div className="mt-2 text-center">
-            <a href="#" className="text-gray-400 hover:underline">Create new account</a>
+            
           </div>
         </div>
       </div>
       <div
-        className="hidden md:block w-1/2 bg-cover bg-center"
+        className="hidden md:block w-1/2 bg-cover bg-center scale-90"
         style={{
-          backgroundImage: `url('https://i.pinimg.com/564x/39/36/08/393608bfc2f3e680d746b8140a8efb07.jpg')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundImage: `url('https://i.pinimg.com/564x/19/c0/c9/19c0c98b557ac920f3159d915dcf9d70.jpg')`,
         }}
       />
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} message={error} />
@@ -110,4 +109,4 @@ const AdminLoginForm = () => {
   );
 };
 
-export default AdminLoginForm;
+export default ClientLoginForm;

@@ -1,24 +1,38 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom'; // Pour la navigation
+
 
 const Admin = () => {
+  const navigate = useNavigate(); 
+  const handleLogout = () => {
+    // Suppression du token d'authentification
+    localStorage.removeItem('token');
+    // Redirection vers la page de login
+    navigate('/login-client');
+  };
   return (
     <div className="min-h-screen flex flex-col bg-gray-800">
       <header className="w-full bg-gray-900 p-4 flex justify-between items-center">
         <h1 className="text-3xl text-white font-bold">Client Dashboard</h1>
         <nav className="flex space-x-4">
-          <Link to="/check-client" className="text-white hover:text-yellow-500">
-            Check Client
-          </Link>
-          <Link to="/check-prospect" className="text-white hover:text-yellow-500">
-            Check Prospect
-          </Link>
+        
           <Link to="/account-management" className="text-white hover:text-yellow-500">
             Account Management
           </Link>
           <Link to="/transaction-management" className="text-white hover:text-yellow-500">
             Transaction Management
           </Link>
+          
+            <Link to="/settings" className="text-white hover:text-yellow-500">
+              Settings
+            </Link>
+            <button 
+             onClick={handleLogout}
+            className="bg-yellow-500 text-gray-900 px-4 py-2 rounded hover:bg-yellow-600">
+              Log Out
+            </button>
+          
         </nav>
       </header>
 

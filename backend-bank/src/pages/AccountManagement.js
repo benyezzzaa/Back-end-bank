@@ -1,69 +1,100 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const UserManagement = () => {
-  const [users, setUsers] = useState([]);
-  const [selectedUser, setSelectedUser] = useState(null);
-  const [error, setError] = useState('');
-  const [newUser, setNewUser] = useState({
-    username: '',
+const AccountManagement = () => {
+  const [client, setClient] = useState({
+    cin: '',
+    firstname: '',
+    lastname: '',
     email: '',
-    role: ''
+    adress: '',
+    password: '', // Ajouter le champ du mot de passe
   });
+  const [error, setError] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
-    const fetchUsers = async () => {
+    const fetchClientData = async () => {
       try {
-        const response = await axios.get('/api/users');
-        setUsers(response.data);
+        const token = localStorage.getItem('token');
+        const response = await axios.get('/api/clients', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        setClient(response.data);
       } catch (error) {
-        console.error('Erreur lors de la récupération des utilisateurs :', error);
-        setError('Erreur lors de la récupération des utilisateurs.');
+        console.error('Erreur lors de la récupération des informations du client :', error);
+        setError('Erreur lors de la récupération des informations.');
       }
     };
-    fetchUsers();
+    fetchClientData();
   }, []);
 
-  const handleSelectUser = (user) => {
-    setSelectedUser(user);
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setClient({ ...client, [name]: value });
   };
 
-  const handleUpdateUser = async () => {
-    try {
-      await axios.put(`/api/users/${selectedUser.id}`, selectedUser);
-      setError('');
-      alert('Utilisateur mis à jour avec succès.');
-    } catch (error) {
-      console.error('Erreur lors de la mise à jour de l\'utilisateur :', error);
-      setError('Erreur lors de la mise à jour de l\'utilisateur.');
+  const handleUpdateClient = async () => {
+    // Validation du mot de passe
+    if (!client.password) {
+      setError('Le mot de passe est requis.');
+      return;
     }
-  };
-
-  const handleCreateUser = async () => {
+    
     try {
-      await axios.post('/api/users', newUser);
-      setNewUser({ username: '', email: '', role: '' });
+      const token = localStorage.getItem('token');
+      await axios.put('/api/clients/update', client, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       setError('');
-      alert('Utilisateur créé avec succès.');
+      alert('Informations mises à jour avec succès.');
+      setIsEditing(false);
     } catch (error) {
-      console.error('Erreur lors de la création de l\'utilisateur :', error);
-      setError('Erreur lors de la création de l\'utilisateur.');
+      console.error('Erreur lors de la mise à jour des informations :', error);
+      setError('Erreur lors de la mise à jour des informations.');
     }
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-animation bg-size-200">
-      <h2 className="text-2xl font-bold mb-4">Gestion des Utilisateurs</h2>
+      <h2 className="text-2xl font-bold mb-4">Gestion du Compte</h2>
       {error && <p className="text-red-500">{error}</p>}
 
       <div className="mb-6 w-full max-w-md">
-        <h3 className="text-xl font-bold mb-4">Créer un Nouvel Utilisateur</h3>
         <div className="mb-4">
-          <label className="block text-gray-700">Nom d'utilisateur:</label>
+          <label className="block text-gray-700">CIN:</label>
           <input
             type="text"
-            value={newUser.username}
-            onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+            name="cin"
+            value={client.cin}
+            onChange={handleInputChange}
+            disabled
+            className="w-full px-3 py-2 border rounded"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700">Prénom:</label>
+          <input
+            type="text"
+            name="firstname"
+            value={client.firstname}
+            onChange={handleInputChange}
+            disabled={!isEditing}
+            className="w-full px-3 py-2 border rounded"
+          />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700">Nom:</label>
+          <input
+            type="text"
+            name="lastname"
+            value={client.lastname}
+            onChange={handleInputChange}
+            disabled={!isEditing}
             className="w-full px-3 py-2 border rounded"
           />
         </div>
@@ -71,96 +102,54 @@ const UserManagement = () => {
           <label className="block text-gray-700">Email:</label>
           <input
             type="email"
-            value={newUser.email}
-            onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+            name="email"
+            value={client.email}
+            onChange={handleInputChange}
+            disabled={!isEditing}
             className="w-full px-3 py-2 border rounded"
           />
         </div>
         <div className="mb-4">
-          <label className="block text-gray-700">Rôle:</label>
+          <label className="block text-gray-700">Adresse:</label>
           <input
             type="text"
-            value={newUser.role}
-            onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+            name="adress"
+            value={client.adress}
+            onChange={handleInputChange}
+            disabled={!isEditing}
             className="w-full px-3 py-2 border rounded"
           />
         </div>
-        <button
-          className="bg-green-500 text-white px-4 py-2 rounded"
-          onClick={handleCreateUser}
-        >
-          Créer
-        </button>
-      </div>
+        <div className="mb-4">
+          <label className="block text-gray-700">Mot de passe:</label>
+          <input
+            type="password"
+            name="password"
+            value={client.password}
+            onChange={handleInputChange}
+            disabled={!isEditing}
+            className="w-full px-3 py-2 border rounded"
+          />
+        </div>
 
-      <table className="min-w-full bg-white border border-gray-300">
-        <thead>
-          <tr>
-            <th className="py-2 px-4 border-b">Nom d'utilisateur</th>
-            <th className="py-2 px-4 border-b">Email</th>
-            <th className="py-2 px-4 border-b">Rôle</th>
-            <th className="py-2 px-4 border-b">Actions</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.id}>
-              <td className="py-2 px-4 border-b">{user.username}</td>
-              <td className="py-2 px-4 border-b">{user.email}</td>
-              <td className="py-2 px-4 border-b">{user.role}</td>
-              <td className="py-2 px-4 border-b">
-                <button
-                  className="bg-blue-500 text-white px-4 py-2 rounded"
-                  onClick={() => handleSelectUser(user)}
-                >
-                  Éditer
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      {selectedUser && (
-        <div className="mt-6 w-full max-w-md">
-          <h3 className="text-xl font-bold mb-4">Modifier l'Utilisateur</h3>
-          <div className="mb-4">
-            <label className="block text-gray-700">Nom d'utilisateur:</label>
-            <input
-              type="text"
-              value={selectedUser.username}
-              onChange={(e) => setSelectedUser({ ...selectedUser, username: e.target.value })}
-              className="w-full px-3 py-2 border rounded"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Email:</label>
-            <input
-              type="email"
-              value={selectedUser.email}
-              onChange={(e) => setSelectedUser({ ...selectedUser, email: e.target.value })}
-              className="w-full px-3 py-2 border rounded"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700">Rôle:</label>
-            <input
-              type="text"
-              value={selectedUser.role}
-              onChange={(e) => setSelectedUser({ ...selectedUser, role: e.target.value })}
-              className="w-full px-3 py-2 border rounded"
-            />
-          </div>
+        {isEditing ? (
           <button
             className="bg-green-500 text-white px-4 py-2 rounded"
-            onClick={handleUpdateUser}
+            onClick={handleUpdateClient}
           >
             Mettre à jour
           </button>
-        </div>
-      )}
+        ) : (
+          <button
+            className="bg-blue-500 text-white px-4 py-2 rounded"
+            onClick={() => setIsEditing(true)}
+          >
+            Modifier
+          </button>
+        )}
+      </div>
     </div>
   );
 };
 
-export default UserManagement;
+export default AccountManagement;

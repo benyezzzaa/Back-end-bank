@@ -12,6 +12,15 @@ module.exports = {
           '100%': { backgroundPosition: '0% 50%' },
         },
       },
+      keyframes: {
+        zoomOut: {
+          '0%': { transform: 'scale(1.2)' },
+          '100%': { transform: 'scale(1.2)' },
+        },
+      },
+      animation: {
+        zoomOut: 'zoomOut 5s ease-out forwards',
+      },
       backgroundSize: {
         'size-200': '200% 200%',
       },

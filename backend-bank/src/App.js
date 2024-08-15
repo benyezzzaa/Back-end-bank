@@ -9,6 +9,7 @@ import TransactionManagement from './pages/TransactionManagement';
 import AdminLoginForm from './pages/AdminLoginForm';
 import AdminDashboard from './pages/AdminDashboard';
 import ProtectedRoute from './pages/ProtectedRoute';
+import ClientLoginForm from './pages/ClientLoginForm';
 
 
 
@@ -27,7 +28,7 @@ const App = () => {
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/login" element={<AdminLoginForm />} />
         <Route path="/admin-dashboard" element={<ProtectedRoute element={AdminDashboard} />} />
-        
+        <Route path="/login-client" element={<ClientLoginForm />} />
        
        
      

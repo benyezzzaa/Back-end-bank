@@ -1,18 +1,40 @@
 import React from 'react';
 import { FaUserCircle } from 'react-icons/fa'; // Icône admin
-import { Link } from 'react-router-dom'; // Pour la navigation
+import { Link,useNavigate } from 'react-router-dom'; // Pour la navigation
+
 
 const AdminDashboard = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    // Suppression du token d'authentification
+    localStorage.removeItem('token');
+    // Redirection vers la page de login
+    navigate('/login');
+  };
   return (
     <div className="flex min-h-screen bg-gradient-to-r from-gray-900 to-gray-800 text-white">
       {/* Navbar verticale */}
       <nav className="w-64 bg-gray-900 p-4">
-        <h1 className="text-2xl font-bold mb-6 text-yellow-500">Uncard Admin</h1>
+        <h1 className="text-2xl font-bold mb-6 text-yellow-500"> Admin Dashboard</h1>
         <ul>
           <li className="mb-4">
-            <Link to="/user-management" className="block p-2 rounded hover:bg-gray-700">
+            <li className="mb-4">
+          <Link to="/user-management" className="block p-2 rounded hover:bg-gray-700">
               User Management
             </Link>
+            </li>
+            <li className="mb-4">
+             <Link to="/check-client" className="block p-2 rounded hover:bg-gray-700">
+            Check Client
+          </Link>
+          </li>
+          <li className="mb-4">
+          <Link to="/check-prospect" className="block p-2 rounded hover:bg-gray-700">
+            Check Prospect
+          </Link>
+          </li>
+            
           </li>
           <li className="mb-4">
             <Link to="/account-management" className="block p-2 rounded hover:bg-gray-700">
@@ -24,11 +46,7 @@ const AdminDashboard = () => {
               Transactions
             </Link>
           </li>
-          <li className="mb-4">
-            <Link to="/settings" className="block p-2 rounded hover:bg-gray-700">
-              Settings
-            </Link>
-          </li>
+          
         </ul>
       </nav>
 
@@ -43,7 +61,9 @@ const AdminDashboard = () => {
             <div className="text-gray-400">
               {new Date().toLocaleDateString('en-US', { weekday: 'short', year: 'numeric', month: 'short', day: 'numeric' })}
             </div>
-            <button className="bg-yellow-500 text-gray-900 px-4 py-2 rounded hover:bg-yellow-600">
+            <button 
+             onClick={handleLogout}
+            className="bg-yellow-500 text-gray-900 px-4 py-2 rounded hover:bg-yellow-600">
               Log Out
             </button>
           </div>
