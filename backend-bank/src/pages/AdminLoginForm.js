@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
+// Modal component for error messages
 const Modal = ({ isOpen, onClose, message }) => {
   if (!isOpen) return null;
 
@@ -33,6 +34,7 @@ const AdminLoginForm = () => {
     e.preventDefault();
     try {
       const response = await axios.post('/admin/login', { username, password });
+
       if (response.data.success) {
         // Stocker le token dans le localStorage
         localStorage.setItem('token', response.data.token);
@@ -52,7 +54,7 @@ const AdminLoginForm = () => {
     <div className="flex min-h-screen">
       <div className="w-full md:w-1/2 flex items-center justify-center bg-gray-100 p-8 relative">
         <div className="absolute top-4 left-4 flex items-center space-x-2">
-          <img src="https://i.pinimg.com/564x/4c/ca/22/4cca22b0d53cacd07a9bc50d1af6c13f.jpg" alt="Logo" className="w-8 h-8" /> {/* Remplace cette ligne par l'URL de ton logo */}
+          <img src="https://i.pinimg.com/564x/56/3c/37/563c372a5672f48dd626d06948aca2fb.jpg" alt="Logo" className="w-8 h-8" />
           <span className="text-xl font-bold">My Bank</span>
         </div>
         <div className="w-full max-w-md p-8 border border-black rounded-lg bg-transparent relative">
@@ -100,9 +102,7 @@ const AdminLoginForm = () => {
       <div
         className="hidden md:block w-1/2 bg-cover bg-center"
         style={{
-          backgroundImage: `url('https://i.pinimg.com/564x/39/36/08/393608bfc2f3e680d746b8140a8efb07.jpg')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
+          backgroundImage: `url('https://i.pinimg.com/564x/56/3c/37/563c372a5672f48dd626d06948aca2fb.jpg')`,
         }}
       />
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} message={error} />

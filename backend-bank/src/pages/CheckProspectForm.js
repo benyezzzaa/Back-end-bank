@@ -1,23 +1,49 @@
 import React, { useState } from 'react';
+
 import axios from 'axios';
+const Modal = ({ isOpen, onClose, children }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+        <button className="text-red-500 float-right" onClick={onClose}>X</button>
+        <div>{children}</div>
+      </div>
+    </div>
+  );
+};
 
 const CheckProspectForm = () => { 
   const [cin, setCin] = useState('');
   const [prospect, setProspect] = useState(null);
   const [error, setError] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.get(`/prospects/${cin}`)
-      
-      setProspect(response.data[0]);
-      setError('');
+        const response = await axios.get(`/prospects/${cin}`);
+        
+        if (response.data && response.data.message) {
+            // Si un message est retourné, cela signifie que le CIN n'est pas un prospect
+            setError(response.data.message);
+            setProspect(null); // Pas de données de prospect à afficher
+        } else {
+            // Si les données du prospect sont retournées
+            setProspect(response.data);
+            setError('Prospect trouvé');
+        }
+        setIsModalOpen(true);
     } catch (error) { 
-      /*console.error('Erreur lors de la vérification du prospect :', error);*/
-      setError('Prospect non trouvé.');
-      setProspect(null);
+        setError('Une erreur est survenue.');
+        setProspect(null);
+        setIsModalOpen(true);
     }
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
   };
 
   return (
@@ -39,14 +65,17 @@ const CheckProspectForm = () => {
             Vérifier
           </button>
         </form>
-        {prospect && (
-          <div className="mt-4 p-4 bg-gray-100 rounded">
-            <p><strong>Nom:</strong> {prospect.firstname} {prospect.lastname}</p>
-            <p><strong>Email:</strong> {prospect.email}</p>
-            <p><strong>Adresse:</strong> {prospect.address}</p>
-          </div>
-        )}
-        {error && <p className="mt-4 text-center text-red-500">{error}</p>}
+        <Modal isOpen={isModalOpen} onClose={handleCloseModal}>
+          {prospect ? (
+            <div className="mt-4 p-4 bg-gray-100 rounded">
+              <p><strong>Nom:</strong> {prospect.firstname} {prospect.lastname}</p>
+              <p><strong>Email:</strong> {prospect.email}</p>
+              <p><strong>Adresse:</strong> {prospect.address}</p>
+            </div>
+          ) : (
+            <p className="mt-4 text-center text-red-500">{error}</p>
+          )}
+        </Modal>
       </div>
     </div>
   );

@@ -42,7 +42,7 @@ const AdminDashboard = () => {
             </Link>
           </li>
           <li className="mb-4">
-            <Link to="/transaction-management" className="block p-2 rounded hover:bg-gray-700">
+            <Link to="/transactions-Admin" className="block p-2 rounded hover:bg-gray-700">
               Transactions
             </Link>
           </li>

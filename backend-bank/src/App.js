@@ -10,7 +10,7 @@ import AdminLoginForm from './pages/AdminLoginForm';
 import AdminDashboard from './pages/AdminDashboard';
 import ProtectedRoute from './pages/ProtectedRoute';
 import ClientLoginForm from './pages/ClientLoginForm';
-
+import AdminTransaction from './pages/AdminTransaction.js' ;
 
 
 
@@ -23,14 +23,16 @@ const App = () => {
         <Route path="/check-prospect" element={<CheckProspectForm />} />
         <Route path="/user-management" element={<UserManagement />} />
         <Route path="/account-management" element={<AccountManagement />} />
-        <Route path="/transaction-management" element={<TransactionManagement />} />
+        <Route path="/transactions/:cin" element={<TransactionManagement />} />
         <Route path="/admin-login" element={<AdminLoginForm />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/login" element={<AdminLoginForm />} />
+        
         <Route path="/admin-dashboard" element={<ProtectedRoute element={AdminDashboard} />} />
+        
         <Route path="/login-client" element={<ClientLoginForm />} />
        
-       
+        <Route path='/transactions-Admin' element={<AdminTransaction />} />
      
       </Routes>
     </Router>
