@@ -68,7 +68,7 @@ const UserManagement = () => {
 
   const handleAddClient = async () => {
     try {
-      await axios.post('/clients', newClient);
+      await axios.post('/clients/addClient', newClient);
       setClients([...clients, newClient]);
       setNewClient({
         cin: '',

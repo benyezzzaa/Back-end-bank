@@ -37,14 +37,14 @@ const AdminTransaction = () => {
         </thead>
         <tbody>
           {transactions.map((transaction) => (
-            <tr key={transaction.client_cin}>
+            <tr key={transaction.id}>
               <td className="border px-4 py-2">{transaction.client_cin}</td>
-              <td className="border px-4 py-2">{transaction.name}</td>
-              <td className="border px-4 py-2">{transaction.email}</td>
-              <td className="border px-4 py-2">{transaction.amount}</td>
-              <td className="border px-4 py-2">{transaction.transaction_type}</td>
-              <td className="border px-4 py-2">{new Date(transaction.transaction_date).toLocaleDateString()}</td>
-              <td className="border px-4 py-2">{transaction.description}</td>
+      <td className="border px-4 py-2">{transaction.name}</td>
+      <td className="border px-4 py-2">{transaction.email}</td>
+      <td className="border px-4 py-2">{transaction.amount}</td>
+      <td className="border px-4 py-2">{transaction.transaction_type}</td>
+      <td className="border px-4 py-2">{new Date(transaction.transaction_date).toLocaleDateString()}</td>
+      <td className="border px-4 py-2">{transaction.description}</td>
             </tr>
           ))}
         </tbody>

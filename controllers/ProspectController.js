@@ -1,130 +1,84 @@
-const Prospect = require('../models/prospect');
-const Client = require('../models/client');
-const nodemailer = require('nodemailer');
 const db = require('../db');
 
-const getAll = (req, res) => {
-
-    
-    console.log("prospect get all");
-
-    let prospectArray =  [];
-
-    //res.send("hello")
-    Prospect.getAll((err, results) => {
-    
-        if (err) {
-            res.status(500).send(err);
-            return;
-        } 
-
-        var prospects = ["04567834" , "06346719"]
-
-        for(i=0 ; i < prospects.length ; i++){
-
-            Client.findByCin(prospects[i],(err,result)=>{
-                if(!err){
-                prospectArray.push(result[0])  
-                console.log(prospectArray); 
-            }
-
-            })
-        }
-
-        res.send(prospectArray)
-        
-    });
-};
-
-
 const getOne = (req, res) => {
-    cin = req.params['cin'];
-    res.json(getClientInfo(cin));
-}
-
-const getClientInfo = (req,res)=>{
-
-    cin = req.params['cin'];
-
-    Client.findByCin(cin , (err,response)=>{
-        console.log(response);
-        res.json(response)    
-    })
-}
-
-
-const getAllClientDetails = (clientsCinList)=>{
-
-    clientsData = [];
-
-    clientsCinList.forEach((clientCin)=>{
-
-        Client.findByCin(clientCin,(err,response)=>{
-            clientsData.push(response);
-            })
-            })
-            console.log(clientsData);
-            return clientsData;
-            }
-
-
-
-const createProspect = (req, res) => {
-    const { firstname, lastname, email, adress, cin } = req.body;
+    const cin = req.params.cin;
+    console.log(`Received request to check the client with cin: ${cin}`);
     
-
-    // Vérification si le client existe déjà dans la banque
-    Client.findByEmail(email, (err, results) => {
+    db.query('SELECT * FROM clients WHERE cin = ? AND isProspect = true', [cin], (err, result) => {
         if (err) {
-            res.status(500).send(err);
-            return;
+            console.error('Erreur lors de la récupération du client :', err);
+            return res.status(500).send('Erreur du serveur');
         }
 
-        if (results.length > 0) {
-            // Le client existe déjà dans la banque
-            res.status(400).json({ success: false, message: 'Client already exists in the bank.' });
+        if (result.length > 0) {
+            // Si le client est trouvé et est un prospect
+            res.json(result[0]);
         } else {
-            // Le client n'existe pas, on peut l'ajouter comme prospect
-            Prospect.create({ cin }, (err, results) => {
-                if (err) {
-                    res.status(500).send(err);
-                    return;
-                }
-                res.json({ success: true, id: results.insertId });
-                
-                // Envoyer un email après la création du prospect
-                sendEmail(email, 'pending', 'thanks for sumbitting Your application is under review.');
-            });
+            // Si le CIN existe mais n'est pas un prospect
+            res.json({ message: 'CIN trouvé mais ce n\'est pas un prospect.' });
         }
     });
 };
 
+// Fonction pour récupérer tous les clients qui sont des prospects
+const getAllProspects = (req, res) => {
+    db.query('SELECT * FROM clients WHERE isProspect = true', (err, results) => {
+       
+        if (err) {
+            console.error('Erreur lors de la récupération des prospects :', err);
+            return res.status(500).send('Erreur du serveur');
+        }
+        res.json(results);
+    });
+};
 
+// Fonction pour récupérer les informations d'un client par CIN
+const getClientInfo = (req, res) => {
+    const cin = req.params.cin;
 
+    if (!cin) {
+        return res.status(400).json({ message: 'CIN est requis.' });
+    }
+
+    db.query('SELECT * FROM clients WHERE cin = ?', [cin], (err, response) => {
+        if (err) {
+            console.error('Erreur lors de la récupération des informations du client :', err);
+            return res.status(500).json({ message: 'Erreur du serveur.' });
+        }
+
+        if (response.length === 0) {
+            return res.status(404).json({ message: 'Client non trouvé.' });
+        }
+
+        res.json(response[0]);
+    });
+};
+
+// Fonction pour vérifier et mettre à jour le statut d'un prospect par un admin
 const adminCheck = (req, res) => {
     const { id, status, reason } = req.body;
-    Prospect.updateStatus(id, status, reason, (err, results) => {
+
+    db.query('UPDATE clients SET status = ?, reason = ? WHERE id = ?', [status, reason, id], (err) => {
         if (err) {
-            res.status(500).send(err);
-            return;
+            return res.status(500).send(err);
         }
 
-        Prospect.findById(id, (err, results) => {
+        db.query('SELECT * FROM clients WHERE id = ?', [id], (err, results) => {
             if (err) {
-                res.status(500).send(err);
-                return;
+                return res.status(500).send(err);
             }
             if (results.length > 0) {
                 const prospect = results[0];
                 sendEmail(prospect.email, status, reason);
                 res.json({ success: true });
             } else {
-                res.status(404).send('Prospect not found');
+                res.status(404).send('Prospect non trouvé');
             }
         });
     });
 };
 
+// Fonction pour envoyer un email
 const sendEmail = (to, status, reason) => {
     const transporter = nodemailer.createTransport({
         service: 'Gmail',
@@ -134,48 +88,34 @@ const sendEmail = (to, status, reason) => {
         }
     });
 
-    const subject = status === 'approved' ? 'Your application is approved' : 'Your application is declined';
-    const text = status === 'approved' ? 'Congratulations! Your application has been approved.' : `Sorry, your application was declined. Reason: ${reason}`;
-    
-    // Définir le nom complet du prospect
-    const prospectName = `${firstname} ${lastname}`;
-                
-    // Envoyer un email après la création du prospect
-    sendEmailToProspect(email, prospectName);
+    const subject = status === 'approved' ? 'Votre demande est approuvée' : 'Votre demande est refusée';
+    const text = status === 'approved' 
+        ? 'Félicitations! Votre demande a été approuvée.' 
+        : `Désolé, votre demande a été refusée. Raison : ${reason}`;
+
     const mailOptions = {
         from: 'fatmabenyezza17@gmail.com',
-        to:'benyezzafatma06@gmail.com' ,
-         subject: 'Bienvenue chez notre plateforme de gestion bancaire en ligne',
-         text: `Bonjour ${prospectName},\n\nBienvenue chez notre plateforme de gestion bancaire en ligne. Nous sommes ravis de vous compter parmi nos prospects.\n\nCordialement,\nVotre équipe de gestion bancaire`
-
-         
+        to,
+        subject,
+        text
     };
 
     transporter.sendMail(mailOptions, (error, info) => {
         if (error) {
-            console.error('Error sending email:', error);
+            console.error('Erreur lors de l\'envoi de l\'email :', error);
         } else {
-            console.log('Email sent to:', to);
-            console.log('Subject:', subject);
-            console.log('Message:', text);
-            console.log('Email sent:', info.response);
-        }
-    });
-};
-const getProspectsWithCin = (req, res) => {
-    db.query('SELECT cin FROM prospects', (err, results) => {
-        if (err) {
-            res.status(500).send(err);
-        } else {
-            res.json(results);
+            console.log('Email envoyé à :', to);
+            console.log('Sujet :', subject);
+            console.log('Message :', text);
+            console.log('Email envoyé :', info.response);
         }
     });
 };
 
 module.exports = {
-    createProspect,
-    adminCheck,getProspectsWithCin,
-    getAll,
+   
+    getAllProspects,
     getClientInfo,
+    adminCheck,
     getOne
 };

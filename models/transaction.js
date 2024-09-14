@@ -1,3 +1,4 @@
+// models/Transaction.js
 const db = require('../db');
 
 const Transaction = {
@@ -9,6 +10,16 @@ const Transaction = {
     },
     reject: (transactionId, callback) => {
         db.query('UPDATE transactions SET status = ? WHERE id = ?', ['rejected', transactionId], callback);
+    },
+    getByClientCin: (cin, callback) => {
+        db.query('SELECT * FROM transactions WHERE client_cin = ?', [cin], callback);
+    },
+    addTransaction: (clientCin, amount, transactionType, description, callback) => {
+        db.query(
+            'INSERT INTO transactions (client_cin, amount, transaction_type, description) VALUES (?, ?, ?, ?)',
+            [clientCin, amount, transactionType, description],
+            callback
+        );
     }
 };
 

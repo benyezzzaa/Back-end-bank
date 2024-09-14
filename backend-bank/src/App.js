@@ -22,7 +22,9 @@ const App = () => {
         <Route path="/check-client" element={<CheckClientForm />} />
         <Route path="/check-prospect" element={<CheckProspectForm />} />
         <Route path="/user-management" element={<UserManagement />} />
-        <Route path="/account-management" element={<AccountManagement />} />
+        <Route path="/account-management" element={<AccountManagement /> } />
+      
+   
         <Route path="/transactions/:cin" element={<TransactionManagement />} />
         <Route path="/admin-login" element={<AdminLoginForm />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
