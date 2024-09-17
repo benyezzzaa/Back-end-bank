@@ -46,6 +46,7 @@ const rejectTransaction = async (req, res) => {
         res.status(500).json({ message: 'Erreur lors du rejet de la transaction' });
     }
 };
+// Connexion du client
 const loginClient = async (req, res) => {
     const { cin, password } = req.body;
     try {
@@ -64,10 +65,14 @@ const loginClient = async (req, res) => {
         // Générer un token JWT
         const token = jwt.sign({ cin: client.cin }, 'secret', { expiresIn: '1h' });
 
+        // Sauvegarder le CIN du client dans la session
+        req.session.clientCIN = client.cin;
+
+        // Redirection vers le dashboard
         res.json({
             success: true,
             token,
-            clientId: client.id, // Assure-toi que l'ID du client est inclus
+            redirectUrl: '/client',
         });
     } catch (error) {
         console.error('Erreur lors de la connexion du client :', error);
@@ -75,18 +80,33 @@ const loginClient = async (req, res) => {
     }
 };
 // Get all transactions for a specific client based on their CIN
-const getClientTransactionsByCin = async (req, res) => {
-    const clientCin = req.params.cin;
+const getClientProfileAndTransactions = async (req, res) => {
+    const clientCIN = req.session.clientCIN; // Assurer que le CIN est stocké dans la session après la connexion
+
     try {
-        const [transactions] = await db.query('SELECT * FROM transactions WHERE client_cin = ?', [clientCin]);
-        if (transactions.length === 0) {
-            return res.status(404).json({ message: 'Aucune transaction trouvée pour ce client' });
+        const [client] = await db.promise().query('SELECT * FROM clients WHERE cin = ?', [clientCIN]);
+
+        if (client.length === 0) {
+            return res.status(404).json({ message: 'Client non trouvé.' });
         }
-        res.json(transactions);
+
+        const [transactions] = await db.promise().query('SELECT * FROM transactions WHERE client_cin = ?', [clientCIN]);
+
+        res.json({
+            client: {
+                cin: client[0].cin,
+                firstname: client[0].firstname,
+                lastname: client[0].lastname,
+                email: client[0].email,
+                adress: client[0].adress
+            },
+            transactions: transactions
+        });
     } catch (error) {
-        console.error('Erreur lors de la récupération des transactions :', error);
-        res.status(500).json({ error: 'Erreur lors de la récupération des transactions' });
+        console.error('Erreur lors de la récupération des informations:', error);
+        res.status(500).json({ message: 'Erreur lors de la récupération des informations.' });
     }
 };
 
-module.exports = { loginClient,getAll,rejectTransaction,approveTransaction,getClientTransactionsByCin };
+
+module.exports = { loginClient,getAll,rejectTransaction,approveTransaction,getClientProfileAndTransactions };

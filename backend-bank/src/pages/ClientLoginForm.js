@@ -20,40 +20,37 @@ const ClientLoginForm = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
   const navigate = useNavigate();
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/clients/login', { cin, password });
-      if (response.data.success) {
-        localStorage.setItem('token', response.data.token);
-        navigate('/client'); 
-      } else {
-        setError(response.data.message);
+        const response = await axios.post('/clients/login', { cin, password });
+  
+        if (response.data.success) {
+            const { token, clientData } = response.data;
+  
+            if (clientData && clientData.cin) {
+                localStorage.setItem(clientData.cin, token);
+                localStorage.setItem(`${clientData.cin}_data`, JSON.stringify(clientData));
+                navigate('/client');
+            } else {
+                setError('Client data or CIN is missing in the response.');
+                setIsModalOpen(true);
+            }
+        } else {
+            setError(response.data.message);
+            setIsModalOpen(true);
+        }
+    } catch (error) {
+        console.error('Error during login:', error);
+        setError(error.response?.data?.message || 'Error during login.');
         setIsModalOpen(true);
-      }
-    } catch (error) {
-      console.error('Error during login:', error);
-      setError(error.response?.data?.message || 'Error during login.');
-      setIsModalOpen(true);
     }
-  };
+};
   
-  const handleLogin = async (credentials) => {
-    try {
-      const response = await axios.post('/login', credentials);
-      
-      // Enregistre le token dans le localStorage
-      localStorage.setItem('token', response.data.token);
-  
-      // Redirige vers la page de gestion de compte après le login
-      navigate('/account-management'); // utilise `useNavigate` de React Router v6
-    } catch (error) {
-      console.error('Erreur lors du login :', error);
-      setError('Échec de la connexion.');
-    }
-  };
+ 
 
   return (
     <div className="flex min-h-screen">

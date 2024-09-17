@@ -10,20 +10,26 @@ const AddTransactionForm = () => {
   const handleAddTransaction = async (e) => {
     e.preventDefault();
 
+    const token = localStorage.getItem('authToken'); // Récupère le token du localStorage
+
+    if (!token) {
+      setMessage('Erreur : Token manquant. Veuillez vous reconnecter.');
+      return;
+    }
+
     const transactionData = {
       client_cin: clientCin,
-      amount: parseFloat(amount),  // Assure-toi que c'est bien un nombre
+      amount: parseFloat(amount),
       transaction_type: transactionType,
       description,
     };
-
-    console.log('Données envoyées:', transactionData); // Log les données envoyées
 
     try {
       const response = await fetch('/transactions/add', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
         },
         body: JSON.stringify(transactionData),
       });
@@ -36,7 +42,6 @@ const AddTransactionForm = () => {
         setMessage('Erreur : ' + errorData.error);
       }
     } catch (error) {
-      console.error('Erreur lors de l\'ajout de la transaction:', error);
       setMessage('Erreur lors de l\'ajout de la transaction.');
     }
   };

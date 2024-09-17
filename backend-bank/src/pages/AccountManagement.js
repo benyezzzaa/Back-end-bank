@@ -2,52 +2,78 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 
 const AccountManagement = () => {
-    const [client, setClient] = useState(null);
+    const [clientData, setClientData] = useState(null);
     const [transactions, setTransactions] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchClientData = async () => {
             try {
-                const token = localStorage.getItem('token'); // ou utilisez le token de session si applicable
-                const response = await axios.get('clients/account-management', {
+                const response = await axios.get('/clients/account-management', {
                     headers: {
-                        Authorization: `Bearer ${token}`
+                        'Authorization': `Bearer ${localStorage.getItem('token')}`
                     }
                 });
-                setClient(response.data.client);
+                setClientData(response.data.client);
                 setTransactions(response.data.transactions);
             } catch (error) {
-                console.error('Error fetching client data:', error);
+                if (error.response) {
+                    // Gérer les erreurs en fonction du code de statut HTTP
+                    if (error.response.status === 401) {
+                        setError('Unauthorized: Please log in.');
+                    } else if (error.response.status === 403) {
+                        setError('Forbidden: Invalid token.');
+                    } else {
+                        setError('Error fetching client data.');
+                    }
+                } else {
+                    setError('Network error. Please try again.');
+                }
+            } finally {
+                setLoading(false);
             }
         };
-
+    
         fetchClientData();
     }, []);
 
-    if (!client) return <p>Loading...</p>;
+    if (loading) return <p className="text-center text-lg text-gray-500">Loading...</p>;
+    if (error) return <p className="text-center text-red-500">{error}</p>;
 
     return (
-        <div className="account-management">
-            <h1>Account Management</h1>
-            <div>
-                <h2>Personal Information</h2>
-                <p>First Name: {client.firstname}</p>
-                <p>Last Name: {client.lastname}</p>
-                <p>Email: {client.email}</p>
-                <p>Address: {client.adress}</p>
-                <p>Password: ******</p> {/* Ne pas afficher le mot de passe en clair */}
-                <p>Balance: ${client.amount}</p>
-            </div>
-            
-            <div>
-                <h2>Transaction History</h2>
-                <ul>
-                    {transactions.map(transaction => (
-                        <li key={transaction.id}>
-                            {transaction.date} - ${transaction.amount} - {transaction.description}
-                        </li>
-                    ))}
-                </ul>
+        <div className="container mx-auto px-4 py-8">
+            <div className="bg-white shadow-lg rounded-lg p-6">
+                <h1 className="text-2xl font-bold mb-4 text-center text-blue-600">Account Management</h1>
+                
+                {clientData && (
+                    <div className="mb-8">
+                        <h2 className="text-xl font-semibold text-gray-700 mb-4">Client Information</h2>
+                        <div className="grid grid-cols-2 gap-4">
+                            <p><span className="font-bold">CIN:</span> {clientData.cin}</p>
+                            <p><span className="font-bold">First Name:</span> {clientData.firstname}</p>
+                            <p><span className="font-bold">Last Name:</span> {clientData.lastname}</p>
+                            <p><span className="font-bold">Email:</span> {clientData.email}</p>
+                            <p><span className="font-bold">Address:</span> {clientData.adress}</p>
+                        </div>
+                    </div>
+                )}
+
+                <h2 className="text-xl font-semibold text-gray-700 mb-4">Transaction History</h2>
+                {transactions.length > 0 ? (
+                    <ul className="space-y-4">
+                        {transactions.map(transaction => (
+                            <li key={transaction.id} className="bg-gray-100 p-4 rounded-lg shadow-md">
+                                <p><span className="font-semibold">Details:</span> {transaction.details}</p>
+                                <p><span className="font-semibold">Amount:</span> {transaction.amount}</p>
+                                {/* Affichage de la date de la transaction */}
+                                <p><span className="font-semibold">Date:</span> {transaction.transaction_date}</p>
+                            </li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p className="text-gray-500">No transactions found.</p>
+                )}
             </div>
         </div>
     );

@@ -102,7 +102,7 @@ const AdminLoginForm = () => {
       <div
         className="hidden md:block w-1/2 bg-cover bg-center"
         style={{
-          backgroundImage: `url('https://i.pinimg.com/564x/56/3c/37/563c372a5672f48dd626d06948aca2fb.jpg')`,
+          backgroundImage: `url('https://i.pinimg.com/564x/a7/96/cf/a796cf5be8460c22a1731b007453a0a2.jpg')`,
         }}
       />
       <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} message={error} />
