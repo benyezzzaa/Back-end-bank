@@ -18,6 +18,7 @@ const Modal = ({ isOpen, onClose, children }) => {
 
 const AddTransactionForm = () => {
   const [clientCin, setClientCin] = useState('');
+  const [recipientCin, setRecipientCin] = useState('');  // Nouveau champ pour recipient CIN
   const [amount, setAmount] = useState('');
   const [transactionType, setTransactionType] = useState('');
   const [description, setDescription] = useState('');
@@ -28,21 +29,22 @@ const AddTransactionForm = () => {
 
   const handleAddTransaction = async (e) => {
     e.preventDefault();
-
-    const token = localStorage.getItem('token'); // Assurez-vous que le nom correspond à celui utilisé lors du login
+  
+    const token = localStorage.getItem('token');
     if (!token) {
       setMessage('Erreur : Token manquant. Veuillez vous reconnecter.');
       setIsModalOpen(true);
       return;
     }
-
+    console.log('recipient_cin:', recipientCin); 
     const transactionData = {
       client_cin: clientCin,
+      recipient_cin: recipientCin, // Inclure recipient_cin dans les données
       amount: parseFloat(amount),
       transaction_type: transactionType,
       description,
     };
-
+    console.log('Transaction data before sending:', transactionData);
     try {
       const response = await axios.post('/transactions/add', transactionData, {
         headers: {
@@ -50,7 +52,7 @@ const AddTransactionForm = () => {
           'Authorization': `Bearer ${token}`,
         },
       });
-
+  
       if (response.status === 201) {
         setMessage('Transaction ajoutée avec succès.');
         setIsModalOpen(true);
@@ -76,6 +78,16 @@ const AddTransactionForm = () => {
             type="text"
             value={clientCin}
             onChange={(e) => setClientCin(e.target.value)}
+            className="w-full p-2 border border-gray-300 rounded"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium">CIN Destinataire</label>  {/* Nouveau champ */}
+          <input
+            type="text"
+            value={recipientCin}
+            onChange={(e) => setRecipientCin(e.target.value)}
             className="w-full p-2 border border-gray-300 rounded"
             required
           />

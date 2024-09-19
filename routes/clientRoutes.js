@@ -60,4 +60,5 @@ router.put('/update', authenticateToken, update); // Update client info
 router.get('/me', authenticateToken, getClientInfo); // Get client info
 router.get('/account-management', authenticateToken, getClientProfileAndTransactions);
 router.post('/logout', logoutClient);
+
 module.exports = router;

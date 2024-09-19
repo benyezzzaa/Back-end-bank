@@ -19,7 +19,7 @@ const Admin = () => {
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-blue-50 to-white">
       {/* Sidebar */}
       <aside className="fixed top-0 left-0 w-16 bg-gray-800 h-full flex flex-col items-center space-y-6 py-4 lg:w-20">
-        <Link to="/" className="text-white hover:text-yellow-300">
+        <Link to="/client" className="text-white hover:text-yellow-300">
           <FaHome size={24} />
         </Link>
         <Link to="/account-management" className="text-white hover:text-yellow-300">
@@ -36,7 +36,10 @@ const Admin = () => {
       {/* Header */}
       <header className="w-full bg-gray-800 p-4 flex justify-between items-center shadow-lg lg:p-6 lg:ml-16">
         <h1 className="text-xl text-white font-bold flex items-center space-x-2 lg:text-3xl">
+        <Link to="/client" className="text-white flex items-center space-x-2">
           <FaUserCircle className="text-white" />
+          
+          </Link>
           <span>Client Dashboard</span>
         </h1>
         <nav className="flex space-x-2 lg:space-x-6">

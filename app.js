@@ -9,7 +9,7 @@ const prospectRoutes = require('./routes/prospectRoutes');
 const clientRoutes = require('./routes/clientRoutes');
 const transactionRoutes = require('./routes/transactionRoutes');
 const adminRoutes = require('./routes/adminRoutes');
-
+const supportRoutes =require('./routes/supportRoutes');
 // Create an Express app
 const app = express();
 const port = process.env.PORT || 3003;
@@ -31,7 +31,7 @@ app.use('/prospects', prospectRoutes);
 app.use('/clients', clientRoutes);
 app.use('/transactions', transactionRoutes);
 app.use('/admin', adminRoutes);
-
+app.use('/api', supportRoutes);
 // Middleware to check session
 function requireLogin(req, res, next) {
     if (req.session.user) {

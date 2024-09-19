@@ -12,7 +12,7 @@ const CheckClientForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('/clients/check-client', {
+      const response = await axios.post('/clients/check', {
         cin,
         firstName,
         lastName,

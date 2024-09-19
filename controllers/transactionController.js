@@ -3,6 +3,7 @@ const db = require('../db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const Transaction = require('../models/transaction');
+
 // Get all transactions
 const getAll = (req, res) => {
     Transaction.getAll((err, transactions) => {
@@ -79,6 +80,29 @@ const loginClient = async (req, res) => {
         res.status(500).json({ success: false, message: 'Erreur lors de la connexion du client' });
     }
 };
+// Ajouter une transaction
+const addTransaction = async (req, res) => {
+    const { client_cin, recipient_cin, amount, transaction_type, description } = req.body;
+    console.log('Données reçues :', req.body); // Ajoutez ceci
+
+    if (!client_cin || !recipient_cin || !amount || !transaction_type || !description) {
+      return res.status(400).json({ message: 'Tous les champs sont obligatoires.' });
+    }
+  
+    try {
+      const [result] = await db.promise().query(
+        'INSERT INTO transactions (client_cin, recipient_cin, amount, transaction_type, description) VALUES (?, ?, ?, ?, ?)',
+        [client_cin, recipient_cin, amount, transaction_type, description]
+      );
+  
+      console.log('Résultat de l\'insertion dans la base de données:', result);
+      res.status(201).json({ message: 'Transaction ajoutée avec succès.' });
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout de la transaction:', error);
+      res.status(500).json({ message: 'Erreur lors de l\'ajout de la transaction.' });
+    }
+  };
+
 // Get all transactions for a specific client based on their CIN
 // Get all transactions for a specific client based on their CIN
 // Get all transactions for a specific client based on their CIN
@@ -125,4 +149,4 @@ const getClientProfileAndTransactions = async (req, res) => {
 
 
 
-module.exports = { loginClient,getAll,rejectTransaction,approveTransaction,getClientProfileAndTransactions };
+module.exports = { addTransaction,loginClient,getAll,rejectTransaction,approveTransaction,getClientProfileAndTransactions };

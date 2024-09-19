@@ -11,6 +11,7 @@ import AdminDashboard from './pages/AdminDashboard';
 import ProtectedRoute from './pages/ProtectedRoute';
 import ClientLoginForm from './pages/ClientLoginForm';
 import AdminTransaction from './pages/AdminTransaction.js' ;
+import Settings from './pages/Settings.js';
 
 
 
@@ -23,7 +24,7 @@ const App = () => {
         <Route path="/check-prospect" element={<CheckProspectForm />} />
         <Route path="/user-management" element={<UserManagement />} />
         <Route path="/account-management" element={<AccountManagement /> } />
-      
+        <Route path="/settings" element={<Settings />} />
    
         <Route path="/transactions/:cin" element={<TransactionManagement />} />
         <Route path="/admin-login" element={<AdminLoginForm />} />

@@ -14,10 +14,10 @@ const Transaction = {
     getByClientCin: (cin, callback) => {
         db.query('SELECT * FROM transactions WHERE client_cin = ?', [cin], callback);
     },
-    addTransaction: (clientCin, amount, transactionType, description, callback) => {
+    addTransaction: (clientCin, amount, transactionType, description, recipientCin, callback) => {
         db.query(
-            'INSERT INTO transactions (client_cin, amount, transaction_type, description) VALUES (?, ?, ?, ?)',
-            [clientCin, amount, transactionType, description],
+            'INSERT INTO transactions (client_cin, amount, transaction_type, description, recipient_cin) VALUES (?, ?, ?, ?, ?)',
+            [clientCin, amount, transactionType, description, recipientCin],
             callback
         );
     }

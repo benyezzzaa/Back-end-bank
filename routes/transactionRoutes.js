@@ -2,9 +2,10 @@ const express = require('express');
 const router = express.Router();
 const db = require('../db'); // Assure-toi que ce chemin est correct
 const { getAll, approveTransaction, rejectTransaction } = require('../controllers/transactionController');
+const { addTransaction } = require('../models/transaction');
 
 // Route pour obtenir toutes les transactions
-router.get('/all', getAll);
+router.get('/all', getAll,addTransaction);
 
 // Route pour approuver une transaction
 router.post('/approve/:transactionId', approveTransaction);
