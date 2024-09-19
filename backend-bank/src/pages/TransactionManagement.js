@@ -1,4 +1,20 @@
 import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
+// Composant Modal pour afficher les messages d'erreur
+const Modal = ({ isOpen, onClose, children }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-md">
+        <button className="text-red-500 float-right" onClick={onClose}>X</button>
+        <div>{children}</div>
+      </div>
+    </div>
+  );
+};
 
 const AddTransactionForm = () => {
   const [clientCin, setClientCin] = useState('');
@@ -6,14 +22,17 @@ const AddTransactionForm = () => {
   const [transactionType, setTransactionType] = useState('');
   const [description, setDescription] = useState('');
   const [message, setMessage] = useState('');
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const navigate = useNavigate();
 
   const handleAddTransaction = async (e) => {
     e.preventDefault();
 
-    const token = localStorage.getItem('authToken'); // Récupère le token du localStorage
-
+    const token = localStorage.getItem('token'); // Assurez-vous que le nom correspond à celui utilisé lors du login
     if (!token) {
       setMessage('Erreur : Token manquant. Veuillez vous reconnecter.');
+      setIsModalOpen(true);
       return;
     }
 
@@ -25,24 +44,25 @@ const AddTransactionForm = () => {
     };
 
     try {
-      const response = await fetch('/transactions/add', {
-        method: 'POST',
+      const response = await axios.post('/transactions/add', transactionData, {
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`,
         },
-        body: JSON.stringify(transactionData),
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        setMessage('Transaction ajoutée avec succès : ' + result.id);
+      if (response.status === 201) {
+        setMessage('Transaction ajoutée avec succès.');
+        setIsModalOpen(true);
+        // Redirection ou autre logique après succès
       } else {
-        const errorData = await response.json();
-        setMessage('Erreur : ' + errorData.error);
+        setMessage(response.data.error || 'Erreur inconnue.');
+        setIsModalOpen(true);
       }
     } catch (error) {
-      setMessage('Erreur lors de l\'ajout de la transaction.');
+      console.error('Erreur lors de l\'ajout de la transaction:', error);
+      setMessage(error.response?.data?.error || 'Erreur lors de l\'ajout de la transaction.');
+      setIsModalOpen(true);
     }
   };
 
@@ -97,7 +117,10 @@ const AddTransactionForm = () => {
         </button>
       </form>
 
-      {message && <p className="mt-4 text-red-500">{message}</p>}
+      {/* Modale pour les messages */}
+      <Modal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)}>
+        {message}
+      </Modal>
     </div>
   );
 };

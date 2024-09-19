@@ -1,14 +1,29 @@
-// services/authService.js
 const jwt = require('jsonwebtoken');
-const secret = process.env.JWT_SECRET;
+require('dotenv').config();
 
-function generateToken(payload) {
-  console.log('Payload pour le token:', payload);
-  const token = jwt.sign(payload, secret, { expiresIn: '1h' });
-  console.log('Token généré:', token);
-  return token;
-}
-
-module.exports = {
-  generateToken,
+const verifyToken = (token) => {
+    const secretKey = process.env.JWT_SECRET;
+    try {
+        const decoded = jwt.verify(token, secretKey);
+        return decoded;
+    } catch (error) {
+        console.error('Jeton invalide ou expiré', error);
+        return null;
+    }
 };
+
+const authenticateToken = (req, res, next) => {
+    const token = req.headers['authorization']?.split(' ')[1]; // Assume Bearer token format
+
+    if (token == null) return res.sendStatus(401);
+
+    const decoded = verifyToken(token);
+    if (decoded) {
+        req.client = decoded; // Attacher les informations décodées à la requête
+        next();
+    } else {
+        res.sendStatus(403);
+    }
+};
+
+module.exports = authenticateToken;

@@ -66,6 +66,7 @@ const addClient = async (req, res) => {
     }
 };
 
+
 const loginClient = async (req, res) => {
     const { cin, password } = req.body;
 
@@ -91,13 +92,22 @@ const loginClient = async (req, res) => {
 
         // Génération du token JWT avec la clé secrète
         const token = jwt.sign({ cin: clientData.cin }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        console.log('Token JWT généré:', token);
         res.json({ success: true, token, clientData }); // Inclure clientData dans la réponse
     } catch (error) {
         console.error('Erreur lors de la connexion:', error.message);
         res.status(500).json({ message: 'Erreur interne du serveur.' });
     }
 };
-
+const logoutClient = (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            console.error('Erreur lors de la déconnexion:', err);
+            return res.status(500).json({ message: 'Erreur lors de la déconnexion.' });
+        }
+        res.status(200).json({ message: 'Déconnexion réussie.' });
+    });
+};
 const getProspects = async (req, res) => {
     try {
         const [prospects] = await db.promise().query('SELECT * FROM clients WHERE isProspect = true');
@@ -172,26 +182,38 @@ const getClientInfo = (req, res) => {
 };
 
 // Obtenir le profil du client et les transactions
+// Get all transactions for a specific client based on their CIN
+// Get all transactions for a specific client based on their CIN
 const getClientProfileAndTransactions = async (req, res) => {
-    const clientCIN = req.clientCIN;
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+        return res.status(401).json({ message: 'Token manquant. Veuillez vous reconnecter.' });
+    }
 
     try {
-        // Obtenir les données du client
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const clientCIN = decoded.cin;
+
         const [client] = await db.promise().query('SELECT * FROM clients WHERE cin = ?', [clientCIN]);
         if (client.length === 0) {
             return res.status(404).json({ message: 'Client non trouvé.' });
         }
 
-        // Obtenir les transactions du client
         const [transactions] = await db.promise().query('SELECT * FROM transactions WHERE client_cin = ?', [clientCIN]);
 
         res.json({
-            client: client[0],
+            client: {
+                cin: client[0].cin,
+                firstname: client[0].firstname,
+                lastname: client[0].lastname,
+                email: client[0].email,
+                adress: client[0].adress
+            },
             transactions: transactions
         });
     } catch (error) {
-        console.error('Erreur lors de la récupération du profil du client et des transactions :', error);
-        res.status(500).json({ message: 'Erreur interne du serveur.' });
+        console.error('Erreur lors de la récupération des informations:', error);
+        res.status(500).json({ message: 'Erreur lors de la récupération des informations.' });
     }
 };
 
@@ -225,5 +247,6 @@ module.exports = {
     update,
     getClientInfo,
     getClientProfileAndTransactions,
-    ensureAuthenticated
+    ensureAuthenticated,
+    logoutClient
 };

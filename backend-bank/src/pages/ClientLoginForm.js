@@ -26,31 +26,26 @@ const ClientLoginForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-        const response = await axios.post('/clients/login', { cin, password });
+      const response = await axios.post('/clients/login', { cin, password });
   
-        if (response.data.success) {
-            const { token, clientData } = response.data;
+      if (response.data.success) {
+        const { token, clientData } = response.data;
   
-            if (clientData && clientData.cin) {
-                localStorage.setItem(clientData.cin, token);
-                localStorage.setItem(`${clientData.cin}_data`, JSON.stringify(clientData));
-                navigate('/client');
-            } else {
-                setError('Client data or CIN is missing in the response.');
-                setIsModalOpen(true);
-            }
-        } else {
-            setError(response.data.message);
-            setIsModalOpen(true);
-        }
-    } catch (error) {
-        console.error('Error during login:', error);
-        setError(error.response?.data?.message || 'Error during login.');
+        // Stocker le token sous la clé 'token' et optionnellement le 'cin'
+        localStorage.setItem('token', token);
+        localStorage.setItem('cin', clientData.cin);
+         
+        navigate('/client');
+      } else {
+        setError(response.data.message);
         setIsModalOpen(true);
+      }
+    } catch (error) {
+      console.error('Error during login:', error);
+      setError(error.response?.data?.message || 'Error during login.');
+      setIsModalOpen(true);
     }
-};
-  
- 
+  };
 
   return (
     <div className="flex min-h-screen">

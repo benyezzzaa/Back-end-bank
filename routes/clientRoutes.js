@@ -13,6 +13,7 @@ const {
     update, 
     getClientInfo, 
     getClientProfileAndTransactions,
+    logoutClient
 
 } = require('../controllers/clientController');
 
@@ -29,24 +30,22 @@ const router = express.Router();
     });
 };*/
 // Middleware to authenticate the JWT token
-const authenticateToken = (req, res, next) => {
+function authenticateToken(req, res, next) {
     const authHeader = req.headers['authorization'];
-    const token = authHeader && authHeader.split(' ')[1]; // Récupère le token à partir des en-têtes
+    const token = authHeader && authHeader.split(' ')[1];
 
-    if (token == null) {
-        console.log('Token manquant'); // Ajoute un message dans les logs
-        return res.status(403).json({ message: 'Token manquant' });
+    if (!token) {
+        return res.status(401).json({ message: 'Token manquant' });
     }
 
-    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    jwt.verify(token, 'secret', (err, client) => { // Assure-toi que 'secret' est correct
         if (err) {
-            console.error('Erreur de validation du token :', err); // Ajoute un message dans les logs
             return res.status(403).json({ message: 'Token invalide' });
         }
-        req.user = user; // Attache les informations de l'utilisateur à la requête
-        next(); // Passe au prochain middleware ou route
+        req.client = client; // Sauvegarde les infos du client dans req.client
+        next();
     });
-};
+}
 
 
 // Client routes
@@ -60,4 +59,5 @@ router.get('/prospects', getProspects); // Get prospects
 router.put('/update', authenticateToken, update); // Update client info
 router.get('/me', authenticateToken, getClientInfo); // Get client info
 router.get('/account-management', authenticateToken, getClientProfileAndTransactions);
+router.post('/logout', logoutClient);
 module.exports = router;

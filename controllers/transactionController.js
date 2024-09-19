@@ -80,17 +80,32 @@ const loginClient = async (req, res) => {
     }
 };
 // Get all transactions for a specific client based on their CIN
+// Get all transactions for a specific client based on their CIN
+// Get all transactions for a specific client based on their CIN
 const getClientProfileAndTransactions = async (req, res) => {
-    const clientCIN = req.session.clientCIN; // Assurer que le CIN est stocké dans la session après la connexion
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) {
+        return res.status(401).json({ message: 'Token manquant. Veuillez vous reconnecter.' });
+    }
 
     try {
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const clientCIN = decoded.cin;
+
+        // Récupérer les informations du client
         const [client] = await db.promise().query('SELECT * FROM clients WHERE cin = ?', [clientCIN]);
 
         if (client.length === 0) {
             return res.status(404).json({ message: 'Client non trouvé.' });
         }
 
-        const [transactions] = await db.promise().query('SELECT * FROM transactions WHERE client_cin = ?', [clientCIN]);
+        // Récupérer les transactions avec les informations du destinataire
+        const [transactions] = await db.promise().query(`
+            SELECT t.*, r.firstname AS recipient_firstname, r.lastname AS recipient_lastname
+            FROM transactions t
+            JOIN clients r ON t.recipient_cin = r.cin
+            WHERE t.client_cin = ?
+        `, [clientCIN]);
 
         res.json({
             client: {
@@ -107,6 +122,7 @@ const getClientProfileAndTransactions = async (req, res) => {
         res.status(500).json({ message: 'Erreur lors de la récupération des informations.' });
     }
 };
+
 
 
 module.exports = { loginClient,getAll,rejectTransaction,approveTransaction,getClientProfileAndTransactions };
