@@ -1,6 +1,16 @@
 const db = require('../db');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+// Fonction pour récupérer les clients avec les champs nécessaires
+const getClients = async (req, res) => {
+    try {
+        const [clients] = await db.promise().query('SELECT accountNumber, solde, isProspect, createdDate FROM clients');
+        res.json(clients);
+    } catch (error) {
+        console.error('Erreur lors de la récupération des clients:', error);
+        res.status(500).json({ message: 'Erreur lors de la récupération des clients.' });
+    }
+};
 
 const getAllClients = async (req, res) => {
     try {
@@ -248,5 +258,6 @@ module.exports = {
     getClientInfo,
     getClientProfileAndTransactions,
     ensureAuthenticated,
-    logoutClient
+    logoutClient,
+    getClients
 };

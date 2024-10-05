@@ -13,7 +13,8 @@ const {
     update, 
     getClientInfo, 
     getClientProfileAndTransactions,
-    logoutClient
+    logoutClient,
+    getClients
 
 } = require('../controllers/clientController');
 
@@ -60,5 +61,6 @@ router.put('/update', authenticateToken, update); // Update client info
 router.get('/me', authenticateToken, getClientInfo); // Get client info
 router.get('/account-management', authenticateToken, getClientProfileAndTransactions);
 router.post('/logout', logoutClient);
+router.get('/clients', getClients);
 
 module.exports = router;

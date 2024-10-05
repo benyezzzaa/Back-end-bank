@@ -78,13 +78,14 @@ const AccountManagement = () => {
                 <h2 className="text-xl font-semibold text-gray-700 mb-4">Transaction History</h2>
                 {transactions.length > 0 ? (
                     <ul className="space-y-4">
-                        {transactions.map(transaction => (
-                            <li key={transaction.id} className="bg-gray-100 p-4 rounded-lg shadow-md">
-                                <p><span className="font-semibold">Recipient:</span> {transaction.recipient_firstname} {transaction.recipient_lastname}</p>
-                                <p><span className="font-semibold">Details:</span> {transaction.details}</p>
-                                <p><span className="font-semibold">Amount:</span> {transaction.amount}</p>
-                                <p><span className="font-semibold">Date:</span> {new Date(transaction.date).toLocaleDateString()}</p>
-                            </li>
+                         {transactions.map(transaction => (
+            <li key={transaction.id} className="bg-gray-100 p-4 rounded-lg shadow-md">
+                <p><span className="font-semibold">From:</span> {transaction.client_firstname} {transaction.client_lastname} (CIN: {transaction.client_cin})</p>
+                <p><span className="font-semibold">To:</span> {transaction.recipient_firstname} {transaction.recipient_lastname} (CIN: {transaction.recipient_cin})</p>
+                <p><span className="font-semibold">Amount:</span> {transaction.amount}</p>
+                <p><span className="font-semibold">Details:</span> {transaction.details}</p>
+                <p><span className="font-semibold">Date:</span> {new Date(transaction.date).toLocaleDateString()}</p>
+            </li>
                         ))}
                     </ul>
                 ) : (

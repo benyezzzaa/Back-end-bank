@@ -12,6 +12,7 @@ import ProtectedRoute from './pages/ProtectedRoute';
 import ClientLoginForm from './pages/ClientLoginForm';
 import AdminTransaction from './pages/AdminTransaction.js' ;
 import Settings from './pages/Settings.js';
+import AdminAccountManagement from './pages/AdminAccountMangment.js';
 
 
 
@@ -25,7 +26,7 @@ const App = () => {
         <Route path="/user-management" element={<UserManagement />} />
         <Route path="/account-management" element={<AccountManagement /> } />
         <Route path="/settings" element={<Settings />} />
-   
+        <Route path="/admin/account-management" element={<AdminAccountManagement />} />
         <Route path="/transactions/:cin" element={<TransactionManagement />} />
         <Route path="/admin-login" element={<AdminLoginForm />} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />

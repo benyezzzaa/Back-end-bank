@@ -37,7 +37,7 @@ const AdminDashboard = () => {
             
           </li>
           <li className="mb-4">
-            <Link to="/account-management" className="block p-2 rounded hover:bg-gray-700">
+            <Link to="/admin/account-management" className="block p-2 rounded hover:bg-gray-700">
               Account Management
             </Link>
           </li>
